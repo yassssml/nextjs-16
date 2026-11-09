@@ -1,39 +1,39 @@
-import styles from './page.module.css';
+import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server';
+import { ACESSO } from '@/lib/acesso';
+import Link from 'next/link';
 
-export default function Home() {
-    return (
-        <main className={styles.container}>
-            <div className={styles.content}>
-                <h1 className={styles.title}>Codeverse</h1>
-                <p className={styles.subtitle}>Explore. Aprenda. Colabore.</p>
+export default async function Home() {
+  const user = await currentUser();
 
-                <a
-                    href="https://codeverse.dev.br"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.cta}>
-                    <svg
-                        className={styles.ctaIcon}
-                        viewBox="-11.5 -10.23174 23 20.46348"
-                        width="25"
-                        height="25"
-                        aria-hidden="true">
-                        <circle r="2.05" fill="currentColor" />
-                        <g stroke="currentColor" strokeWidth="1" fill="none">
-                            <ellipse rx="11" ry="4.2" />
-                            <ellipse rx="11" ry="4.2" transform="rotate(60)" />
-                            <ellipse rx="11" ry="4.2" transform="rotate(120)" />
-                        </g>
-                    </svg>
-                    Ver material tutorial
-                </a>
+  const rotas = Object.keys(ACESSO).filter((rota) =>
+    ACESSO[rota].includes(user?.publicMetadata.role)
+  );
 
-                <p className={styles.tagline}>Scaffolding oficial - Codeverse</p>
-            </div>
+  return (
+    <main className="card">
+      {!user ? (
+        <>
+          <h1>Faça login</h1>
+          <SignInButton mode="modal">Entrar</SignInButton>
+          <SignUpButton mode="modal">Criar conta</SignUpButton>
+        </>
+      ) : (
+        <>
+          <UserButton
+            appearance={{
+              elements: { userButtonAvatarBox: { width: 150, height: 150 } },
+            }}
+          />
+          <h1>{rotas.length ? 'Escolha seu acesso' : 'Sem acesso'}</h1>
 
-            <footer className={styles.footer}>
-                <p className={styles.footerText}>Pouco pra quem vê..., muito pra quem aprende.</p>
-            </footer>
-        </main>
-    );
+          {rotas.map((rota) => (
+            <Link key={rota} href={`/${rota}`} className="btn">
+              {rota}
+            </Link>
+          ))}
+        </>
+      )}
+    </main>
+  );
 }

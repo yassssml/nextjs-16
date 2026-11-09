@@ -1,5 +1,3 @@
-export default function page() {
-  return (
-    <div>Rota</div>
-  )
+export default function DashboardPage() {
+  return <div>Dashboard</div>;
 }
